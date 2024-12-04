@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:13
+    container_name: gpt-bot-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: gpt_bot
+    ports:
+      - '5440:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend_service:
+    depends_on:
+      - db
+    build:
+      context: .
+    image: gpt_bot
+    container_name: gpt_bot
+    env_file:
+      - .env
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com  # Replace with your email
+      PGADMIN_DEFAULT_PASSWORD: admin        # Replace with a secure password
+    ports:
+      - '5050:80'  # Maps pgAdmin's web UI to localhost:5050
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  pgdata: {}  # Volume for PostgreSQL data
+  pgadmin_data: {}  # Volume for pgAdmin data
